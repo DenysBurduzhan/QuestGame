@@ -23,13 +23,34 @@ public class QuizServlet extends HttpServlet {
 
         req.getSession().setAttribute("questions", questions);
 
-        // Forwarding to the JSP page
         getServletContext().getRequestDispatcher("/quiz.jsp").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // Placeholder for POST handling logic
-        resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "POST method is not supported.");
+        ArrayList<Question> questions = (ArrayList<Question>) req.getSession().getAttribute("questions");
+
+        if (questions == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "No questions found in session.");
+            return;
+        }
+
+        int score = 0;
+        for (int i = 0; i < questions.size(); i++) {
+            String paramName = "q" + i;
+            String answerStr = req.getParameter(paramName);
+            if (answerStr != null) {
+                int selectedAnswer = Integer.parseInt(answerStr);
+                if (selectedAnswer == questions.get(i).getCorrectAnswer()) {
+                    score++;
+                }
+            }
+        }
+
+        req.setAttribute("score", score);
+        req.setAttribute("total", questions.size());
+
+        getServletContext().getRequestDispatcher("/result.jsp").forward(req, resp);
     }
+
 }
