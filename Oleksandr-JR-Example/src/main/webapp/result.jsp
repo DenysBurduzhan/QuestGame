@@ -12,7 +12,7 @@
 
 <p>You scored <strong><%= request.getAttribute("score") %></strong> out of <strong><%= request.getAttribute("total") %></strong>.</p>
 
-<a href="quiz">Try Again</a>
+<a href="quiz?restart=true" class="button">Почати заново</a>
 
 </body>
 </html>
