@@ -1,16 +1,17 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-
 <!DOCTYPE html>
-<html>
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Quiz Result</title>
+    <title>Результат</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<h1>Quiz Result</h1>
+<h1>Гра завершена!</h1>
 
-<p>You scored <strong><%= request.getAttribute("score") %></strong> out of <strong><%= request.getAttribute("total") %></strong>.</p>
+<p>Дякуємо за гру!</p>
+<p>Ви вже зіграли <strong><%= session.getAttribute("gamesPlayed") != null ? session.getAttribute("gamesPlayed") : 1 %></strong> раз(ів).</p>
 
 <a href="quiz?restart=true" class="button">Почати заново</a>
 

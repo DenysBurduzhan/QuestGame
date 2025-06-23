@@ -4,6 +4,11 @@
 <%
     Question question = (Question) request.getAttribute("question");
     int qIndex = (Integer) request.getAttribute("qIndex");
+    Integer gamesPlayed = (Integer) session.getAttribute("gamesPlayed");
+    if (gamesPlayed == null) gamesPlayed = 0;
+
+    String text = question.getText().toLowerCase();
+    boolean isEnding = text.contains("поразка") || text.contains("перемога");
 %>
 <!DOCTYPE html>
 <html lang="uk">
@@ -16,10 +21,7 @@
 
 <h2><%= question.getText() %></h2>
 
-<%
-    String text = question.getText().toLowerCase();
-    boolean isEnding = text.contains("поразка") || text.contains("перемога");
-%>
+<p>Кількість пройдених ігор: <strong><%= gamesPlayed %></strong></p>
 
 <% if (isEnding) { %>
 <a href="quiz?restart=true" class="button">Почати заново</a>

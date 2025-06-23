@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -17,25 +18,48 @@ public class QuizServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String questionIndexStr = req.getParameter("q");
-        int questionIndex = questionIndexStr != null ? Integer.parseInt(questionIndexStr) : 0;
+        HttpSession session = req.getSession();
 
-        Question question = questionRepository.getAll().get(questionIndex);
+        if ("true".equals(req.getParameter("restart"))) {
+            session.removeAttribute("currentIndex");
+
+            Integer games = (Integer) session.getAttribute("gamesPlayed");
+            if (games == null) games = 0;
+            session.setAttribute("gamesPlayed", games + 1);
+        }
+
+        Integer currentIndex = (Integer) session.getAttribute("currentIndex");
+        if (currentIndex == null) {
+            currentIndex = 0;
+            session.setAttribute("currentIndex", currentIndex);
+        }
+
+        Question question = questionRepository.getAll().get(currentIndex);
         req.setAttribute("question", question);
-        req.setAttribute("qIndex", questionIndex);
+        req.setAttribute("qIndex", currentIndex);
 
         getServletContext().getRequestDispatcher("/quiz.jsp").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        int currentIndex = Integer.parseInt(req.getParameter("qIndex"));
+        HttpSession session = req.getSession();
+
+        int qIndex = Integer.parseInt(req.getParameter("qIndex"));
         int answerIndex = Integer.parseInt(req.getParameter("answerIndex"));
 
-        Question currentQuestion = questionRepository.getAll().get(currentIndex);
-        int nextIndex = currentQuestion.getNextQuestions().get(answerIndex);
+        Question question = questionRepository.getAll().get(qIndex);
 
-        resp.sendRedirect("quiz?q=" + nextIndex);
+        if (question.getNextQuestions() == null || question.getNextQuestions().isEmpty()) {
+            getServletContext().getRequestDispatcher("/result.jsp").forward(req, resp);
+            return;
+        }
+
+        int nextIndex = question.getNextQuestions().get(answerIndex);
+        session.setAttribute("currentIndex", nextIndex);
+
+        resp.sendRedirect("quiz");
     }
 }
+
 
