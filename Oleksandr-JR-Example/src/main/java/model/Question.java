@@ -9,8 +9,7 @@ import java.util.ArrayList;
 @Builder
 public class Question {
     private String text;
-
     private ArrayList<String> answers;
-
-    private int correctAnswer;
+    private ArrayList<Integer> nextQuestions;
+    private Integer correctAnswer;
 }

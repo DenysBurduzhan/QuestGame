@@ -1,64 +1,30 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="model.Question" %>
-<%@ page import="java.util.ArrayList" %>
-
+<%@ page import="java.util.*" %>
+<%
+    Question question = (Question) request.getAttribute("question");
+    int qIndex = (Integer) request.getAttribute("qIndex");
+%>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Quiz</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .question { margin-bottom: 20px; }
-        .question-title { font-weight: bold; }
-        .answer { margin-left: 20px; }
-    </style>
+    <title>Квест</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
-<h1>Mini Quiz</h1>
-
-<%
-    ArrayList<Question> questions = (ArrayList<Question>) request.getSession().getAttribute("questions");
-    if (questions == null) {
-%>
-<p>No questions available.</p>
-<%
-} else {
-%>
-
-<form action="quiz" method="post">
+<h2><%= question.getText() %></h2>
+<form method="post" action="quiz">
+    <input type="hidden" name="qIndex" value="<%= qIndex %>"/>
     <%
-        for (int i = 0; i < questions.size(); i++) {
-            Question q = questions.get(i);
+        List<String> answers = question.getAnswers();
+        for (int i = 0; i < answers.size(); i++) {
     %>
-    <div class="question">
-        <div class="question-title">
-            <%= (i + 1) %>. <%= q.getText() %>
-        </div>
-        <%
-            for (int j = 0; j < q.getAnswers().size(); j++) {
-                String answer = q.getAnswers().get(j);
-        %>
-        <div class="answer">
-            <label>
-                <input type="radio" name="q<%= i %>" value="<%= j %>" required>
-                <%= answer %>
-            </label>
-        </div>
-        <%
-            }
-        %>
-    </div>
+    <button type="submit" name="answerIndex" value="<%= i %>"><%= answers.get(i) %></button>
     <%
         }
     %>
-    <input type="submit" value="Submit Quiz">
 </form>
-
-<%
-    }
-%>
-
 </body>
 </html>
+

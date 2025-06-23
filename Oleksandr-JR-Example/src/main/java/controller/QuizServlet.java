@@ -17,40 +17,25 @@ public class QuizServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String questionIndexStr = req.getParameter("q");
+        int questionIndex = questionIndexStr != null ? Integer.parseInt(questionIndexStr) : 0;
 
-        ArrayList<Question> questions = questionRepository.getAll();
-
-
-        req.getSession().setAttribute("questions", questions);
+        Question question = questionRepository.getAll().get(questionIndex);
+        req.setAttribute("question", question);
+        req.setAttribute("qIndex", questionIndex);
 
         getServletContext().getRequestDispatcher("/quiz.jsp").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ArrayList<Question> questions = (ArrayList<Question>) req.getSession().getAttribute("questions");
+        int currentIndex = Integer.parseInt(req.getParameter("qIndex"));
+        int answerIndex = Integer.parseInt(req.getParameter("answerIndex"));
 
-        if (questions == null) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "No questions found in session.");
-            return;
-        }
+        Question currentQuestion = questionRepository.getAll().get(currentIndex);
+        int nextIndex = currentQuestion.getNextQuestions().get(answerIndex);
 
-        int score = 0;
-        for (int i = 0; i < questions.size(); i++) {
-            String paramName = "q" + i;
-            String answerStr = req.getParameter(paramName);
-            if (answerStr != null) {
-                int selectedAnswer = Integer.parseInt(answerStr);
-                if (selectedAnswer == questions.get(i).getCorrectAnswer()) {
-                    score++;
-                }
-            }
-        }
-
-        req.setAttribute("score", score);
-        req.setAttribute("total", questions.size());
-
-        getServletContext().getRequestDispatcher("/result.jsp").forward(req, resp);
+        resp.sendRedirect("quiz?q=" + nextIndex);
     }
-
 }
+
